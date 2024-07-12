@@ -3,15 +3,17 @@ pragma solidity ^0.8.24;
 
 contract ActionsRegistry {
 
+    //║══════════════════════════════════════════╗
+    //║             Structs                      ║
+    //║══════════════════════════════════════════╝
+    struct Action {
+        ActionStatus status;
+        address actionOwner;
+    }
     enum ActionStatus {
         PENDING,
         CONFIRMED,
         REMOVED
-    }
-
-    struct Action {
-        ActionStatus status;
-        address actionOwner;
     }
 
     //║══════════════════════════════════════════╗
