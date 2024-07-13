@@ -61,7 +61,7 @@ contract ActionsRegistry {
 
     function removeAction(string memory actionBaseUrl) public {
         require(msg.sender == owner, "Only owner can confirm action");
-        require(actions[actionBaseUrl].status == ActionStatus.PENDING, "Action is not pending");
+        require(actions[actionBaseUrl].status == ActionStatus.PENDING || actions[actionBaseUrl].status == ActionStatus.CONFIRMED, "Action is not pending");
         actions[actionBaseUrl].status = ActionStatus.REMOVED;
         emit ActionRemoved(actionBaseUrl);
     }
