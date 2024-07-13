@@ -255,7 +255,7 @@ contract ActionCampaigns is ERC1155, Ownable, ERC1155Supply, AutomationCompatibl
         if(!isCrossChainDeposit) {
             IERC20(usdcTokenAddress).transferFrom(donor, address(this), depositAmount);
         }
-        // mint admin NFT for XMTP groups purposes
+        // mint admin NFT
         if(campaigns[_campaignId].tokenAmount == 0) {
             _mint(actionCampaignAdmin, _campaignId, 1, "");
         }
