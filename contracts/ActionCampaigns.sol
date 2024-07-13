@@ -64,7 +64,7 @@ contract ActionCampaigns is ERC1155, Ownable, ERC1155Supply, AutomationCompatibl
     //║══════════════════════════════════════════╝
     uint256 public campaignCount;
     uint256 public recurringDepositCount;
-    address public usdcTokenAddress; //0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 usdc on Base
+    address public campaignsTokenAddress; //0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 usdc on Base
     address public actionCampaignAdmin;
     address public upkeep;
     bool public initialized;
@@ -84,8 +84,8 @@ contract ActionCampaigns is ERC1155, Ownable, ERC1155Supply, AutomationCompatibl
     }
 
     // Constructor
-    constructor(address admin, address _usdcTokenAddress) ERC1155("") Ownable(msg.sender){
-        usdcTokenAddress = _usdcTokenAddress;
+    constructor(address admin, address _campaignsTokenAddress) ERC1155("") Ownable(msg.sender){
+        campaignsTokenAddress = _campaignsTokenAddress;
         actionCampaignAdmin = admin;
     }
 
@@ -143,7 +143,7 @@ contract ActionCampaigns is ERC1155, Ownable, ERC1155Supply, AutomationCompatibl
         campaigns[campaignCount] = PapaCampaign(
             msg.sender,
             _name,
-            usdcTokenAddress,
+            campaignsTokenAddress,
             0,
             endDate,
             false
@@ -164,7 +164,7 @@ contract ActionCampaigns is ERC1155, Ownable, ERC1155Supply, AutomationCompatibl
     function campaignWithdrawFunds(uint256 _campaignId, uint256 withdrawAmount) public {
         require(campaigns[_campaignId].owner == msg.sender, "You are not the owner of this campaign");
         require(campaigns[_campaignId].tokenAmount >= withdrawAmount, "Insufficient funds");
-        IERC20(usdcTokenAddress).transfer(msg.sender, withdrawAmount);
+        IERC20(campaignsTokenAddress).transfer(msg.sender, withdrawAmount);
         campaigns[_campaignId].tokenAmount -= withdrawAmount;
         emit WithdrawFunds(_campaignId, withdrawAmount);
     }
@@ -179,7 +179,7 @@ contract ActionCampaigns is ERC1155, Ownable, ERC1155Supply, AutomationCompatibl
         // calculate total donation amount
         uint256 totalDonationAmount = recurringAmount * donationTimes;
         // transfer USDC from donor to contract
-        IERC20(usdcTokenAddress).transferFrom(msg.sender, address(this), totalDonationAmount);
+        IERC20(campaignsTokenAddress).transferFrom(msg.sender, address(this), totalDonationAmount);
         // deposit first amount
         _depositFunds(campaignId, recurringAmount, donor, true);
         uint256 donationAmountLeft = totalDonationAmount - recurringAmount;
@@ -222,7 +222,7 @@ contract ActionCampaigns is ERC1155, Ownable, ERC1155Supply, AutomationCompatibl
         PapaRecurringDeposit storage recurringDeposit = usersRecurringDeposits[recurringDepositId];
         require(recurringDeposit.user == msg.sender, "You are not the owner of this recurring deposit");
         require(recurringDeposit.donationAmountLeft > 0, "No donation amount left");
-        IERC20(usdcTokenAddress).transfer(msg.sender, recurringDeposit.donationAmountLeft);
+        IERC20(campaignsTokenAddress).transfer(msg.sender, recurringDeposit.donationAmountLeft);
         recurringDeposit.donationAmountLeft = 0;
         recurringDeposit.hasEnded = true;
     }
@@ -253,7 +253,7 @@ contract ActionCampaigns is ERC1155, Ownable, ERC1155Supply, AutomationCompatibl
         require(!campaigns[_campaignId].hasEnded, "Campaign has ended");
         require(block.timestamp <= campaigns[_campaignId].endDate, "Campaign end date reached");
         if(!isCrossChainDeposit) {
-            IERC20(usdcTokenAddress).transferFrom(donor, address(this), depositAmount);
+            IERC20(campaignsTokenAddress).transferFrom(donor, address(this), depositAmount);
         }
         // mint admin NFT
         if(campaigns[_campaignId].tokenAmount == 0) {
